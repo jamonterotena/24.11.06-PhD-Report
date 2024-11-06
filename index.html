@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="jmontero">
+<meta name="author" content="Jose Antonio Montero Tena">
 <meta name="dcterms.date" content="2024-11-06">
 
 <title>Defining the Genome-wide Landscape in Rapeseed</title>
@@ -3055,7 +3055,7 @@ vertical-align: -.125em;
   <li><a href="#results" id="toc-results" class="nav-link active" data-scroll-target="#results">Results</a>
   <ul class="collapse">
   <li><a href="#variant-calling" id="toc-variant-calling" class="nav-link" data-scroll-target="#variant-calling">Variant calling</a></li>
-  <li><a href="#haplorils" id="toc-haplorils" class="nav-link" data-scroll-target="#haplorils">haploRILs</a></li>
+  <li><a href="#crossover-detection-via-haplorils" id="toc-crossover-detection-via-haplorils" class="nav-link" data-scroll-target="#crossover-detection-via-haplorils">Crossover detection via haploRILs</a></li>
   <li><a href="#features-and-target" id="toc-features-and-target" class="nav-link" data-scroll-target="#features-and-target">Features and target</a></li>
   <li><a href="#crossover-prediction-preliminary" id="toc-crossover-prediction-preliminary" class="nav-link" data-scroll-target="#crossover-prediction-preliminary">Crossover prediction (preliminary)</a></li>
   </ul></li>
@@ -3080,7 +3080,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>jmontero </p>
+             <p>Jose Antonio Montero Tena </p>
           </div>
   </div>
     
@@ -3099,7 +3099,6 @@ vertical-align: -.125em;
 </header>
 
 
-<p>See a discussion of the results at the end of this report.</p>
 <section id="results" class="level1">
 <h1>Results</h1>
 <section id="variant-calling" class="level2">
@@ -3107,8 +3106,8 @@ vertical-align: -.125em;
 <p>I repeated variant calling, this time considering the <a href="https://gatk.broadinstitute.org/hc/en-us/articles/6012243429531-GenotypeGVCFs-and-the-death-of-the-dot-obsolete-as-of-GATK-4-6-0-0"><strong>missing genotype format issue</strong></a>. I did <strong>combined joint genotyping</strong> on 100 founders + 214 RILs combined, kept only biallelic, converted sites with <strong>DP&lt;4</strong> and heterozygous sites to ./. (acounts for all missing and low-depth variants), subset by 16-way families, filtered VCF to keep only sites with <strong>missing call rate &lt;= 0.3</strong> (less than 5 family members) and polymorphic and converted the VCF file to PED.</p>
 <p>See also <a href="https://mynotebook.labarchives.com/share/Notebook%2520Jose%2520Montero/MTI4LjcwMDAwMDAwMDAwMDAyfDk0NjA3Ny85OS0yMzcvVHJlZU5vZGUvMzU0ODMwMDY1NHwzMjYuNw==">LabArchives</a>.</p>
 </section>
-<section id="haplorils" class="level2">
-<h2 class="anchored" data-anchor-id="haplorils">haploRILs</h2>
+<section id="crossover-detection-via-haplorils" class="level2">
+<h2 class="anchored" data-anchor-id="crossover-detection-via-haplorils">Crossover detection via haploRILs</h2>
 <p>Then I run <a href="https://github.com/GoliczGenomeLab/haploRILs">haploRILs</a> on the PED file on different parameters (window size, step, filtering) and selected the best parameters window size = 10 SNPs, step = 2, context-window size = 3 (see <a href="https://github.com/GoliczGenomeLab/haploRILs">haploRILs GitHub</a> for explanation), based on the number of crossovers per individual expected (~8) and desired resolution.</p>
 <p>See also <a href="https://jamonterotena.github.io/haploRILs-benchmarking-results/">haploRILs simulation-based performance report</a>.</p>
 <p>Below there are some karyoplots showing the distribution of crossovers across individuals and chromosomes.</p>
@@ -3157,7 +3156,7 @@ vertical-align: -.125em;
 <section id="crossover-prediction-preliminary" class="level2">
 <h2 class="anchored" data-anchor-id="crossover-prediction-preliminary">Crossover prediction (preliminary)</h2>
 <p>The model was fed with one of the feature sets: either all the initial features or the ones previously selected during preprocessing upon significant <em>t</em>-test test and hierarchical clustering. So far, I did not observe big differences between both.</p>
-<p>A 80-20 split pattern was applied to the whole population. Scaling was done after data splitting to prevent data leakage. Three classifiers were tested, following [Demirci et al (2018)] (https://pubmed.ncbi.nlm.nih.gov/29808512/): decision tree, logistic regression and random forest. I performed Hyperparameter selection via Bayesian optimization with 300 iterations in lummerland and applied 5 and 10 fold cross validation, although I did not observe differences so far. The best parameters were selected based on precision.</p>
+<p>A 80-20 split pattern was applied to the whole population. Scaling was done after data splitting to prevent data leakage. Three classifiers were tested, following <a href="https://pubmed.ncbi.nlm.nih.gov/29808512/">Demirci et al (2018)</a>: decision tree, logistic regression and random forest. I performed Hyperparameter selection via Bayesian optimization with 300 iterations in lummerland and applied 5 and 10 fold cross validation, although I did not observe differences so far. The best parameters were selected based on precision.</p>
 <p>The following PDF files show precision, recall, accuracy, ROC under the AUC score (both on the test and the train data) and confusion matrix.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">

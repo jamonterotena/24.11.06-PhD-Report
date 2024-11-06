@@ -1,7 +1,7 @@
 ---
 title: "Defining the Genome-wide Landscape in Rapeseed"
 subtitle: "PhD - Lab Report"
-author: jmontero
+author: "Jose Antonio Montero Tena"
 date: 2024-11-06
 format:
   html:
@@ -14,8 +14,6 @@ execute:
   cache: true
 ---
 
-See a discussion of the results at the end of this report.
-
 # Results
 
 ## Variant calling
@@ -24,7 +22,7 @@ I repeated variant calling, this time considering the [**missing genotype format
 
 See also [LabArchives](https://mynotebook.labarchives.com/share/Notebook%2520Jose%2520Montero/MTI4LjcwMDAwMDAwMDAwMDAyfDk0NjA3Ny85OS0yMzcvVHJlZU5vZGUvMzU0ODMwMDY1NHwzMjYuNw==).
 
-## haploRILs
+## Crossover detection via haploRILs
 
 Then I run [haploRILs](https://github.com/GoliczGenomeLab/haploRILs) on the PED file on different parameters (window size, step, filtering) and selected the best parameters window size = 10 SNPs, step = 2, context-window size = 3 (see [haploRILs GitHub](https://github.com/GoliczGenomeLab/haploRILs) for explanation), based on the number of crossovers per individual expected (~8) and desired resolution.
 
@@ -58,7 +56,7 @@ lummerland:/vol/agcpgl/jmontero/features/Features/*/README.md
 
 The model was fed with one of the feature sets: either all the initial features or the ones previously selected during preprocessing upon significant *t*-test test and hierarchical clustering. So far, I did not observe big differences between both.
 
-A 80-20 split pattern was applied to the whole population. Scaling was done after data splitting to prevent data leakage. Three classifiers were tested, following [Demirci et al (2018)] (https://pubmed.ncbi.nlm.nih.gov/29808512/): decision tree, logistic regression and random forest. I performed Hyperparameter selection via Bayesian optimization with 300 iterations in lummerland and applied 5 and 10 fold cross validation, although I did not observe differences so far. The best parameters were selected based on precision.
+A 80-20 split pattern was applied to the whole population. Scaling was done after data splitting to prevent data leakage. Three classifiers were tested, following [Demirci et al (2018)](https://pubmed.ncbi.nlm.nih.gov/29808512/): decision tree, logistic regression and random forest. I performed Hyperparameter selection via Bayesian optimization with 300 iterations in lummerland and applied 5 and 10 fold cross validation, although I did not observe differences so far. The best parameters were selected based on precision.
 
 The following PDF files show precision, recall, accuracy, ROC under the AUC score (both on the test and the train data) and confusion matrix.
 
