@@ -1,0 +1,79 @@
+---
+title: "Defining the Genome-wide Landscape in Rapeseed"
+subtitle: "PhD - Lab Report"
+author: jmontero
+date: 2024-11-06
+format:
+  html:
+    toc: true
+    toc-location: left
+    self-contained: true
+    embed-resources: true
+execute:
+  freeze: auto
+  cache: true
+---
+
+See a discussion of the results at the end of this report.
+
+# Results
+
+## Variant calling
+
+I repeated variant calling, this time considering the [**missing genotype format issue**](https://gatk.broadinstitute.org/hc/en-us/articles/6012243429531-GenotypeGVCFs-and-the-death-of-the-dot-obsolete-as-of-GATK-4-6-0-0). I did **combined joint genotyping** on 100 founders + 214 RILs combined, kept only biallelic, converted sites with **DP<4** and heterozygous sites to ./. (acounts for all missing and low-depth variants), subset by 16-way families, filtered VCF to keep only sites with **missing call rate <= 0.3** (less than 5 family members) and polymorphic and converted the VCF file to PED.
+
+See also [LabArchives](https://mynotebook.labarchives.com/share/Notebook%2520Jose%2520Montero/MTI4LjcwMDAwMDAwMDAwMDAyfDk0NjA3Ny85OS0yMzcvVHJlZU5vZGUvMzU0ODMwMDY1NHwzMjYuNw==).
+
+## haploRILs
+
+Then I run [haploRILs](https://github.com/GoliczGenomeLab/haploRILs) on the PED file on different parameters (window size, step, filtering) and selected the best parameters window size = 10 SNPs, step = 2, context-window size = 3 (see [haploRILs GitHub](https://github.com/GoliczGenomeLab/haploRILs) for explanation), based on the number of crossovers per individual expected (~8) and desired resolution.
+
+See also [haploRILs simulation-based performance report](https://jamonterotena.github.io/haploRILs-benchmarking-results/).
+
+Below there are some karyoplots showing the distribution of crossovers across individuals and chromosomes.
+
+![haploRILs-detected crossovers (nSnp = 10, step = 2, K = 3) across 16-way families on chromosome chrA01.](variant_calling/karyoploter_chrA01_10_2_3.pdf){width=1000px height=800px fig-align="center"}
+
+![haploRILs-detected crossovers (nSnp = 20, step = 2, K = 3) across 16-way families on chromosome chrA01. Points indicate variants with height relative to MAF ](variant_calling/karyoploter_chrA01_20_2_3.jpg){width=1000px height=800px fig-align="center"}
+
+![haploRILs-detected crossovers (nSnp = 10, step = 2, K = 3) across 16-way families on chromosome chrA06.](variant_calling/karyoploter_chrA06_10_2_3.pdf){ width=1000px height=800px fig-align="center"}
+
+![haploRILs-detected crossovers (nSnp = 20, step = 2, K = 3) across 16-way families on chromosome chrA06.](variant_calling/karyoploter_chrA06_20_2_3.pdf){width=1000px height=800px fig-align="center"}
+
+![haploRILs-detected crossovers (nSnp = 20, step = 2, K = 3) across chromosomes on one individual of the 16-way families. Points indicate variants with height relative to MAF](variant_calling/karyoploter_RIL1_20_2_3.jpg){width=1000px height=800px fig-align="center"}
+
+## Features and target
+
+View [preprocessing report](preprocessing/preprocessing.html). Also:
+
+- About feature preparation (I need to update LabArchives):
+
+```{}
+lummerland:/vol/agcpgl/jmontero/features/Features/*/README.md
+```
+
+- About the target and its preparation: [LabArchives](https://mynotebook.labarchives.com/share/Notebook%2520Jose%2520Montero/MTQwLjR8OTQ2MDc3LzEwOC0yNTUvVHJlZU5vZGUvMjA1ODUxMTQxNXwzNTYuNA==)
+
+## Crossover prediction (preliminary)
+
+The model was fed with one of the feature sets: either all the initial features or the ones previously selected during preprocessing upon significant *t*-test test and hierarchical clustering. So far, I did not observe big differences between both.
+
+A 80-20 split pattern was applied to the whole population. Scaling was done after data splitting to prevent data leakage. Three classifiers were tested, following [Demirci et al (2018)] (https://pubmed.ncbi.nlm.nih.gov/29808512/): decision tree, logistic regression and random forest. I performed Hyperparameter selection via Bayesian optimization with 300 iterations in lummerland and applied 5 and 10 fold cross validation, although I did not observe differences so far. The best parameters were selected based on precision.
+
+The following PDF files show precision, recall, accuracy, ROC under the AUC score (both on the test and the train data) and confusion matrix.
+
+![Performance metrics obtained with the random forest classifier](machine_learning/haploRILs_10_2_3.rand_forest.performance.pdf){width=1000px height=800px fig-align="center"}
+
+![Performance metrics obtained with the decision tree classifier](machine_learning/haploRILs_10_2_3.decision_tree.performance.pdf){width=1000px height=800px fig-align="center"}
+
+![Performance metrics obtained with the logistic regression classifier](machine_learning/haploRILs_10_2_3.logistic_reg.performance.pdf){width=1000px height=800px fig-align="center"}
+
+![Feature importance obtained the random forest classifier](machine_learning/feature_importance.png){width=1000px height=800px fig-align="center"}
+
+# Discussion
+
+By now we are getting ROCs of around 80% and **random forest** seems to be the best classifier. Regarding feature importance, polymorphism and structural variant features ranked unsurprisingly on top, with **SNP polymorphisms** in the founders leading by more than double the second's feature importance. That might indicate bias in crossover detection, since more crossovers tend to be called in regions with high SNP density. I was thinking to repeat the analysis by **subsetting** the regions to keep only SNP-rich regions and analyzing how that might impact predictions. In order to improve performance, I am planning to test **splitting by chromosomes** and by homoeologous chromosomes since effects of homoeology on recombination might potentially cause data leakage from the train into the test data.
+
+I do not think that "rescuing" families with incomplete pedigrees will be of any benefit with the current binary target design. Considering how I am defining the target, the exact parameters should not not play a big role because only one crossover can be counted by region, and it seems that most of crossovers removed by haploRILs filtering were in overlapping regions.
+
+For the future, I am planning to apply **haploMAGIC** to independently validate the feature importances extracted from the model trained haploRILs. I could also try to predict haploMAGIC results using the model trained with haploRILs. [Yan et al (2023)](https://pmc.ncbi.nlm.nih.gov/articles/PMC10003086/) shared recombination maps in *Brassica napus*. I could use their data to validate the model.
