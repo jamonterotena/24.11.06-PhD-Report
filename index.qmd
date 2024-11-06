@@ -40,7 +40,7 @@ Below there are some karyoplots showing the distribution of crossovers across in
 
 ![haploRILs-detected crossovers (nSnp = 20, step = 2, K = 3) across chromosomes on one individual of the 16-way families. Points indicate variants with height relative to MAF](variant_calling/karyoploter_RIL1_20_2_3.jpg){width=1000px height=800px fig-align="center"}
 
-## Features and target
+## Preparation of features and target
 
 View [preprocessing report](preprocessing/preprocessing.html). Also:
 
@@ -66,7 +66,7 @@ The following PDF files show precision, recall, accuracy, ROC under the AUC scor
 
 ![Performance metrics obtained with the logistic regression classifier](machine_learning/haploRILs_10_2_3.logistic_reg.performance.pdf){width=1000px height=800px fig-align="center"}
 
-![Feature importance obtained the random forest classifier](machine_learning/feature_importance.png){width=1000px height=800px fig-align="center"}
+![Feature importance obtained the decision tree classifier](machine_learning/feature_importance.png){width=1000px height=800px fig-align="center"}
 
 # Discussion
 
